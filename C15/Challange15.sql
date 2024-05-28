@@ -139,7 +139,7 @@ SELECT Penilaian.NIM, Mahasiswa.NamaLengkap
 FROM Penilaian
 LEFT JOIN MataKuliah ON Penilaian.KodeMataKuliah = MataKuliah.KodeMataKuliah
 LEFT JOIN Mahasiswa ON Penilaian.NIM = Mahasiswa.NIM
-WHERE MataKuliah.NamaMataKuliah = 'Data Mining';
+WHERE MataKuliah.NamaMataKuliah LIKE '%Data Mining%';
 
 --6
 SELECT DISTINCT Dosen.NamaLengkap, MataKuliah.NamaMataKuliah, COUNT(*) as JML_Mahasiswa
