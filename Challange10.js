@@ -2,18 +2,22 @@ const readline = require('readline');
 
 const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
+    prompt: 'tulis kalimatmu di sini > '
 });
 
 function promptUser() {
-    rl.question('tulis kalimatmu di sini > ', (input) => {
-        if (input.toLowerCase() === 'good bye!') {
-            rl.close();
-        } else {
-            output = sentenceManipulation(input)
-            console.log(`hasil konversi: ${output}`);
-            promptUser();
-        }
+    rl.prompt();
+
+    rl.on('line', (input) => {
+        let output = sentenceManipulation(input);
+        console.log(`hasil konversi: ${output}`);
+        rl.prompt();  
+    });
+
+    rl.on('close', () => {
+        console.log('good bye!');
+        process.exit(0);
     });
 }
 
@@ -34,6 +38,5 @@ function stringManipulation(word) {
         return newWord;
     }
 }
-
 
 promptUser(); 
