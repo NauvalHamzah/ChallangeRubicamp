@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Nawawi",
+    "height": 175,
+    "weight": 80,
+    "birthdate": "1990-07-21",
+    "married": false
+  },
+  {
+    "name": "Nauval",
+    "height": 168,
+    "weight": 65.2,
+    "birthdate": "1998-07-31",
+    "married": true
+  },
+  {
+    "name": "Marsaa",
+    "height": 140,
+    "weight": 40,
+    "birthdate": "2012-08-27",
+    "married": false
+  },
+  {
+    "name": "Asri",
+    "height": "160",
+    "weight": "50",
+    "birthdate": "1995-01-10",
+    "married": true
+  },
+  {
+    "name": "Ilham",
+    "height": "170",
+    "weight": "60",
+    "birthdate": "2000-09-30",
+    "married": false
+  },
+  {
+    "name": "Ramdani",
+    "height": "170",
+    "weight": "70",
+    "birthdate": "1995-01-20",
+    "married": true
+  }
+]

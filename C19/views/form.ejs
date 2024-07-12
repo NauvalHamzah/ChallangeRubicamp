@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+    <form action="" method="post">
+        <div class="row">
+            <input type="text" id="name" name="name" value="<%= item.name %>" placeholder="insert your name" required>
+        </div>
+        <div class="row">
+            <input type="number" id="height" step="1" name="height" value="<%= item.height %>"
+                placeholder="insert your height">
+        </div>
+        <div class="row">
+            <input type="number" step="0.1" id="weight" name="weight" value="<%= item.weight %>"
+                placeholder="insert your weight">
+        </div>
+        <div class="row">
+            <input type="date" id="birthdate" name="birthdate" value="<%= item.birthdate %>" placeholder="dd/mm/yyyy">
+        </div>
+        <div class="row">
+            <select id="complete" name="married">
+                <option value="false" <%= !item.married || item.married.length === 0 ? ' selected hidden' : '' %>>have you married ?</option>
+                <option value="false" <%= item.married === false ? ' selected' : '' %>>Not Yet</option>
+                <option value="true" <%= item.married === true ? ' selected' : '' %>>Yes</option> 
+            </select>
+        </div>
+        <br>
+        <div class="row">
+            <button class="btn-save" type="submit">Save</button>
+        </div>
+    </form>
+
+    <form action="" method="post">
+        <div class="row">
+            <button class="btn" id="cancel-btn">cancel</button>
+        </div>
+    </form>
+
+    <%- include('partials/footer') %>

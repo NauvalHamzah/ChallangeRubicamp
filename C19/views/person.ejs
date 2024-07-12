@@ -1,0 +1,45 @@
+<%- include('partials/header') %>
+<h1>JSON CRUD (Create, Read, Update, and Delete)</h1>
+<a class="btn" href="/add">Create</a>
+<table>
+    <thead>
+        <tr>
+            <th>No.</th>
+            <th>Name</th>
+            <th>Height</th>
+            <th>Weight</th>
+            <th>Birth Date</th>
+            <th>Is Married</th>
+            <th>actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% data.forEach((item, index)=> { %>
+            <tr>
+                <td>
+                    <%= index + 1 %>
+                </td>
+                <td>
+                    <%= item.name %>
+                </td>
+                <td>
+                    <%= item.height %>
+                </td>
+                <td>
+                    <%= item.weight %>
+                </td>
+                <td>
+                    <%= item.birthdate %>
+                </td>
+                <td>
+                    <%= item.married ? 'Yes' : 'Not Yet' %>
+                </td>
+                <td>
+                    <a href="/edit/<%= index %>">Update</a>
+                    <a href="/delete/<%= index %>" onclick="return confirmDelete('<%=item.name%>')">Delete</a>
+                </td>
+            </tr>
+            <% }) %>
+    </tbody>
+</table>
+<%- include('partials/footer') %>
