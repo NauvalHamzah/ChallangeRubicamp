@@ -1,0 +1,61 @@
+<%- include('partials/header') %>
+    <h2 style="text-align: center" class="mb-4"><%= heading %></h2>
+    <form action="" method="post" id="myForm">
+        <div class="form-group row mb-2">
+            <label for="name" class="col-sm-2 col-form-label">Name</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="name" name="name" value="<%= item.name %>"
+                    placeholder="insert your name" required>
+            </div>
+        </div>
+        <div class="form-group row mb-2">
+            <label for="height" class="col-sm-2 col-form-label">Height</label>
+            <div class="col-sm-10">
+                <input type="number" class="form-control" id="height" step="1" name="height" value="<%= item.height %>"
+                    placeholder="insert your height">
+            </div>
+        </div>
+        <div class="form-group row mb-2">
+            <label for="weight" class="col-sm-2 col-form-label">Weight</label>
+            <div class="col-sm-10">
+                <input type="number" class="form-control" step="0.1" id="weight" name="weight"
+                    value="<%= item.weight %>" placeholder="insert your weight">
+            </div>
+        </div>
+        <div class="form-group row mb-2">
+            <label for="birthdate" class="col-sm-2 col-form-label">Birth Date</label>
+            <div class="col-sm-10">
+                <input type="date" class="form-control" id="birthdate" name="birthdate" value="<%= item.birthdate %>"
+                    placeholder="dd/mm/yyyy">
+            </div>
+        </div>
+        <div class="form-group row mb-2">
+            <label class="col-sm-2 col-form-label">Is Married</label>
+            <div class="col-sm-10">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="married" id="notYet" value="false"
+                        <%=item.married===0 || !item.married ? ' checked' : '' %>>
+                    <label class="form-check-label" for="notYet">Not Yet</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="married" id="yes" value="true"
+                        <%=item.married===1 ? ' checked' : '' %>>
+                    <label class="form-check-label" for="yes">Yes</label>
+                </div>
+
+            </div>
+        </div>
+        <br>
+        <div class="mb-2">
+            <button class="btn btn-primary px-4" type="submit">Save</button>
+            <button class="btn btn-warning px-4" id="backButton" type="button">Back</button>
+        </div>
+    </form>
+    <script>
+        document.getElementById('backButton').addEventListener('click', function (event) {
+            event.preventDefault();
+            window.history.back();
+        });
+    </script>
+
+    <%- include('partials/footer') %>
