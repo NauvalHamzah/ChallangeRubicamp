@@ -48,14 +48,8 @@
         <br>
         <div class="mb-2">
             <button class="btn btn-primary px-4" type="submit">Save</button>
-            <button class="btn btn-warning px-4" id="backButton" type="button">Back</button>
+            <a class="btn btn-warning px-4" href="/" type="button">Back</a>
         </div>
     </form>
-    <script>
-        document.getElementById('backButton').addEventListener('click', function (event) {
-            event.preventDefault();
-            window.history.back();
-        });
-    </script>
 
     <%- include('partials/footer') %>
