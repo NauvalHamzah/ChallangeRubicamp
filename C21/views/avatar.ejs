@@ -1,0 +1,30 @@
+<%- include('partials/header') %>
+    <div class="card">
+        <div class="card-header">
+            <h2 style="text-align: center" class="mb-4">
+            Change Avatar
+            </h2>
+        </div>
+        <div class="card-body">
+        <form action="" method="post" enctype="multipart/form-data">
+            <div class="form-group row mb-2">
+                <label for="avatar" class="col-sm-2 col-form-label">Avatar</label>
+                <div class="col-sm-10">
+                    <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*" onchange="previewImage(event);">
+                </div>
+            </div>                    
+            <div class="form-group row mb-2">
+                <label for="title" class="col-sm-2 col-form-label">Preview</label>
+                <div class="col-sm-10">
+                    <img id="preview-selected-image" width="400px" src="/images/def_ava.jpg">
+                </div>
+            </div>
+            <br>
+        </div>
+            <div class="card-footer mb-2">
+                <button class="btn btn-primary px-4" type="submit"><i class="fa-solid fa-floppy-disk"></i></button>
+                <a class="btn btn-warning px-4" href="/todo" type="button"><i class="fa-solid fa-rotate-left"></i></a>
+            </div>
+        </form>
+    </div>
+    <%- include('partials/footer') %>
