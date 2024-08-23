@@ -1,0 +1,386 @@
+<%- include('./partials/header') %>
+  <div class="container p-3 mb-2 bg-light text-dark">
+    <div class="card">
+      <div class="card-header">
+        <h2 style="text-align: center">MongoDB BREAD (Browse, Read, Edit, Add, Delete, Sort)</h2>
+      </div>
+      <div class="row card-body">
+        <div class="col-md-3 d-flex align-items-center mb-4">
+          <div class="show-entries">Show</div>
+          <select id="entries">
+            <option value=5>5</option>
+            <option value=10>10</option>
+            <option value=0 selected>all</option>
+          </select>
+          <div class="show-entries">entries</div>
+        </div>
+        <div class="col-md-9 d-flex align-items-center mb-4">
+          <input id="search-box" class="form-control me-2" type="text" placeholder="Search" aria-label="default input example">
+          <button id="searchButton" type="button" class="btn btn-outline-secondary me-2"><i
+              class="fa-solid fa-magnifying-glass"></i></button>
+          <button id="reset" type="button" class="btn btn-outline-warning"><i class="fa-solid fa-arrows-rotate"></i></button>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th style="width: 10%" scope="col">No</th>
+              <th style="width: 20%" scope="col"><i class="fa-solid fa-sort" id="name-sort"></i> Name</th>
+              <th style="width: 25%" scope="col"><i class="fa-solid fa-sort" id="phone-sort"></i> Phone</th>
+              <th style="width: 35%" scope="col">actions</th>
+            </tr>
+          </thead>
+          <tbody id="table-content">
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <div class="row align-items-center">
+          <div class="col-4 d-flex justify-content-start">
+            <div id="divAddUserModal">
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                data-bs-target="#addUserModal"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+      
+          <div class="col-5 d-flex justify-content-end">
+            <div id="pageInfo"></div>
+          </div>
+      
+          <div class="col-3 d-flex justify-content-center">
+            <nav aria-label="Page navigation example">
+              <ul class="pagination mb-0">
+                <!--Pagination-->
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  <script>
+    const API_URL = 'http://localhost:3000/'
+    const nameSort = document.getElementById('name-sort')
+    const phoneSort = document.getElementById('phone-sort')
+
+    document.addEventListener('DOMContentLoaded', function () {
+      loadUser();
+    })
+    
+    //set limit
+    document.getElementById('entries').addEventListener('change', function() {
+    loadUser()
+    })
+    
+    //search
+    document.getElementById('searchButton').addEventListener('click', function() {
+    loadUser()
+    });
+
+    //reset
+    document.getElementById('reset').addEventListener('click', function(){
+      document.getElementById('search-box').value = ''
+      document.getElementById('name-sort').className = 'fa-solid fa-sort'
+      document.getElementById('phone-sort').className = 'fa-solid fa-sort'
+      loadUser()
+    })
+
+    addUserModal()
+    sorting()
+    
+
+    function loadUser(page=1, sortBy='_id', sortMode='asc') {
+      const queryParams = {
+      page: page,
+      limit: document.getElementById('entries').value,
+      sortBy: sortBy,
+      sortMode: sortMode,
+      search: document.getElementById('search-box').value
+      };
+
+      const queryString = new URLSearchParams(queryParams).toString();
+
+      const xhttp = new XMLHttpRequest();
+      xhttp.onload = function () {
+        let html = ''
+        const allData = JSON.parse(this.response);
+        data = allData.users
+        offset = allData.offset
+        totalData = allData.total
+        limit = allData.limit
+        generatePagination(Number(queryParams.page), Math.ceil(totalData/limit))
+        data.forEach((item, index) => {
+          html += `
+                        <tr>
+                            <td>${index + 1 + offset}</td>
+                            <td>${item.name}</td>
+                            <td>${item.phone}</td>
+                            <td>
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                        data-bs-target="#editUserModal-${item._id}">
+                                  <i class="fa-solid fa-pencil"></i></a>
+                                </button>
+                                ${editUserModal(item._id,item.name, item.phone)}
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal-${item._id}">
+                                        <i class="fa-solid fa-trash"></i>
+                                </button>
+                                ${deleteModal(item._id)}
+                                <a class="btn btn-warning" href="/user/${item._id}/todos"><i class="fa-solid fa-right-to-bracket"></i></a>
+                                
+                            </td>
+                        </tr>
+                    `
+        })
+        document.getElementById('table-content').innerHTML = html
+        const endData = Math.min(Number(offset)+Number(limit),totalData)
+        const pageInfo = `Showing ${offset+1} to ${endData} of ${totalData} entries`
+        document.getElementById('pageInfo').innerHTML = pageInfo
+      }
+      xhttp.open("GET", `${API_URL}users?${queryString}`);
+      xhttp.send();
+    }
+
+    function deleteModal(id) {
+      html = `
+        <div class="modal fade" id="deleteModal-${id}" tabindex="-1"
+            aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Conformation
+                        </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>are you sure?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary px-3"
+                            data-bs-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-primary px-3"
+                            onclick="removeUser('${id}')">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      `
+      return html
+    }
+
+    function removeUser(id) {
+      const xhttp = new XMLHttpRequest();
+
+      xhttp.open("DELETE", `${API_URL}users/${id}`);
+      xhttp.send();
+      const modalElement = document.getElementById(`deleteModal-${id}`);
+      const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
+      modalInstance.hide();
+      xhttp.onload = function () {
+        loadUser()
+      }
+    }
+
+    function addUserModal(){
+      html =`
+      <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addUserModalLabel">User Form</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row mb-2">
+                        <label for="addUserName" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-10 mb-2">
+                            <input type="text" class="form-control" id="addUserName" name="name">
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label for="addUserPhone" class="col-sm-2 col-form-label">Phone</label>
+                        <div class="col-sm-10 mb-2">
+                            <input type="text" class="form-control" id="addUserPhone" name="phone">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-2" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary px-2" onclick="addUser()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+      </div>
+      `
+      document.getElementById('divAddUserModal').innerHTML += html
+    }
+
+    function addUser(){
+      const xhttp = new XMLHttpRequest();
+
+      const nameValue = document.getElementById('addUserName').value;
+      const phoneValue = document.getElementById('addUserPhone').value;
+
+      xhttp.open('POST', `${API_URL}users`)
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send(`name=${nameValue}&phone=${phoneValue}`);
+
+      const modalElement = document.getElementById(`addUserModal`);
+      const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
+      modalInstance.hide();
+      xhttp.onload = function () {
+        selectedLimit = document.getElementById('entries').value
+        loadUser()
+      }
+
+      document.getElementById('addUserName').value = '';
+      document.getElementById('addUserPhone').value = '';
+
+    }
+
+    function editUserModal(id, name, phone){
+      html =`
+      <div class="modal fade" id="editUserModal-${id}" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editUserModalLabel-${id}">User Form</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row mb-2">
+                        <label for="editUserName-${id}" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-10 mb-2">
+                            <input type="text" class="form-control" id="editUserName-${id}" name="name" value=${name}>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label for="editUserPhone-${id}" class="col-sm-2 col-form-label">Phone</label>
+                        <div class="col-sm-10 mb-2">
+                            <input type="text" class="form-control" id="editUserPhone-${id}" name="phone" value=${phone}>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-2" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary px-2" onclick="editUser('${id}')">Save Changes</button>
+                </div>
+            </div>
+        </div>
+      </div>
+      `
+      return html
+    }
+
+    function editUser(id){
+      const xhttp = new XMLHttpRequest();
+
+      const nameValue = document.getElementById(`editUserName-${id}`).value;
+      const phoneValue = document.getElementById(`editUserPhone-${id}`).value;
+
+      xhttp.open('PUT', `${API_URL}users/${id}`)
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send(`name=${nameValue}&phone=${phoneValue}`);
+
+      const modalElement = document.getElementById(`editUserModal-${id}`);
+      const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
+      modalInstance.hide();
+      xhttp.onload = function () {
+        loadUser()
+      }
+    }
+
+    function generatePagination(page, maxPage){
+      const paginationContainer = document.querySelector('.pagination');
+      paginationContainer.innerHTML = ''; // Clear existing pagination
+
+      if(page>1){
+        // Previous button
+        const prevItem = document.createElement('li');
+        prevItem.className = 'page-item-prev'
+        prevItem.innerHTML = '<a class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>';
+        paginationContainer.appendChild(prevItem);
+
+        prevItem.addEventListener('mouseover', function() {
+        prevItem.style.cursor = 'pointer';
+        });
+
+        prevItem.addEventListener('click', function(){
+          page -= 1
+          loadUser(page)
+        })
+      }
+        
+      // Page number buttons
+      for (let i = 1; i <= maxPage; i++) {
+        const pageItem = document.createElement('li');
+        pageItem.className = 'page-item' + (i === page ? ' active' : '');
+        pageItem.innerHTML = `<a class="page-link">${i}</a>`;
+        paginationContainer.appendChild(pageItem);
+
+        pageItem.addEventListener('mouseover', function() {
+        pageItem.style.cursor = 'pointer';
+        });
+
+        pageItem.addEventListener('click', function(){
+          page = i
+          loadUser(page)
+        })
+      }
+
+      if(page<maxPage){
+        // Next button
+        const nextItem = document.createElement('li');
+        nextItem.className = 'page-item-next'
+        nextItem.innerHTML = '<a class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>';
+        paginationContainer.appendChild(nextItem);
+
+        nextItem.addEventListener('mouseover', function() {
+        nextItem.style.cursor = 'pointer';
+        });
+
+        nextItem.addEventListener('click', function(){
+          page += 1
+          loadUser(page)
+        })
+      }
+    }
+
+    function sorting(){
+      nameSort.addEventListener('mouseover', function(){
+        nameSort.style.cursor = 'pointer';
+      })
+
+      nameSort.addEventListener('click', function(){
+        const currentPage = document.querySelector('.page-item.active .page-link').innerHTML
+        if(nameSort.className=='fa-solid fa-sort-up'){
+          nameSort.className = 'fa-solid fa-sort-down'
+          loadUser(currentPage,'name', 'desc')
+        } else{
+          nameSort.className = 'fa-solid fa-sort-up'
+          loadUser(currentPage, 'name', 'asc')
+        }
+        phoneSort.className = 'fa-solid fa-sort'
+      })
+
+      phoneSort.addEventListener('mouseover', function(){
+        phoneSort.style.cursor = 'pointer';
+      })
+
+      phoneSort.addEventListener('click', function(){
+        const currentPage = document.querySelector('.page-item.active .page-link').innerHTML
+        if(phoneSort.className=='fa-solid fa-sort-up'){
+          phoneSort.className = 'fa-solid fa-sort-down'
+          loadUser(currentPage, 'phone', 'desc')
+        } else{
+          phoneSort.className = 'fa-solid fa-sort-up'
+          loadUser(currentPage, 'phone', 'asc')
+        }
+        nameSort.className = 'fa-solid fa-sort'
+      })
+    }
+
+  </script>
+
+  <%- include('./partials/footer') %>

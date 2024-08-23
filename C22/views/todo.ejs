@@ -1,0 +1,328 @@
+<%- include('./partials/header') %>
+    <div class="container p-3 mb-2 bg-light text-dark">
+        <div class="card">
+            <div class="card-header">
+                <h2 style="text-align: center">Todo List</h2>
+            </div>
+            <div class="card-body">
+                <div class="search-box mt-5">
+                    <form action="" method="get">
+                        <div class="form-group row mb-2">
+                            <label for="title" class="col-sm-3 col-form-label">Title</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="title" name="title"
+                                    placeholder="insert your title">
+                            </div>
+                        </div>
+                        <div class="form-group row mb-2">
+                            <label for="startDate" class="col-sm-3 col-form-label">Deadline</label>
+                            <div class="col-sm-4">
+                                <input type="datetime-local" class="form-control" id="startDate" name="startDate">
+                            </div>
+                            <label for="endDate" class="col-sm-1 col-form-label" style="text-align: center">s.d.</label>
+                            <div class="col-sm-4">
+                                <input type="datetime-local" class="form-control" id="endDate" name="endDate">
+                            </div>
+                        </div>
+                        <div class="form-group row mb-2">
+                            <label for="complete" class="col-sm-3 col-form-label">Complete</label>
+                            <div class="col-sm-9">
+                                <select id="complete" class="form-control" name="complete">
+                                    <option value="">-select complete-</option>
+                                    <option value="true">Done</option>
+                                    <option value="false">Not Yet</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-4 row">
+                            <div class="col-sm-3">
+                                <button id="todoSort" class="btn btn-success"><i class="fa-solid mr-4 fa-sort"></i> sort
+                                    by deadline</button>
+                            </div>
+                            <div class="col-sm-9">
+                                <button id="reset" type="button" class="btn btn-warning"><i
+                                        class="fa-solid fa-arrows-rotate"></i></button>
+                                <button id="searchButton" class="btn btn-info" type="button"><i
+                                        class="fa-solid fa-magnifying-glass"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="col-sm-12 d-flex">
+                    <input type="text" class="form-control mr-2" id="add-title" name="add-title" placeholder="title">
+                    <button class="btn btn-outline-primary" type="submit" id="add-button"><i
+                            class="fa-solid fa-circle-down"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="todoList list-group">
+                    <!--List of todos-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/'
+
+        let currentPage = 1;
+        const limit = 5;
+        let totalPages = 1
+        let sortMode = 'asc'
+
+        $(document).ready(function () {
+            loadTodo();
+        })
+
+        $(window).scroll(function () {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                if (currentPage < totalPages) {
+                    currentPage += 1;
+                    loadTodo(sortMode, currentPage);
+                }
+            }
+        });
+
+        //Add todo
+        $('#add-button').on('click', function () {
+            const title = $('#add-title').val();
+            const userId = "<%= userId %>"
+            $('#add-title').val('')
+            $.ajax({
+                method: "POST",
+                url: `${API_URL}todos`,
+                data: {
+                    title: title,
+                    executor: userId
+                }
+            }).done(function (textStatus, xhr) {
+                currentPage=1
+                $('.todoList').html('')
+                loadTodo()
+            }).fail(function (xhr, textStatus) {
+                alert("Request failed: " + textStatus);
+            })
+        });
+
+        //search
+        $('#searchButton').on('click', function () {
+            currentPage=1
+            $('.todoList').html('')
+            loadTodo()
+        });
+
+        //reset
+        $('#reset').on('click', function () {
+            event.preventDefault()
+            $('#title').val('')
+            $('#startDate').val('')
+            $('#endDate').val('')
+            $('#complete').val('')
+            $('#todoSort').find('i').attr('class','fa-solid mr-4 fa-sort')
+            currentPage=1
+            $('.todoList').html('')
+            loadTodo()
+        })
+
+        sorting()
+
+        function loadTodo(sortMode = "asc", page=1) {
+            const queryParams = {
+                executor: "<%= userId %>",
+                sortMode: sortMode,
+                title: $("#title").val(),
+                startDate: $("#startDate").val(),
+                endDate: $("#endDate").val(),
+                complete: $("#complete").val(),
+                page: page,
+                limit: limit
+            };
+
+            const queryString = $.param(queryParams)
+            $.ajax({
+                method: "GET",
+                url: `${API_URL}todos?${queryString}`,
+            }).done(function (response) {
+                totalPages = response.totalPages
+                let html = ''
+                const allData = response;
+                data = allData.todos
+                const now = Date.now()
+                data.forEach((item, index) => {
+                    let bg, color = ""
+                    if (item.complete == true) {
+                        bg = "#d5e8de"
+                        color = "#4b5b4f"
+                    } else if (new Date(item.deadline).getTime() > now) {
+                        bg = "#dedfe0"
+                        color = "#3f474f"
+                    } else {
+                        bg = "#f6d9d9"
+                        color = "#863d3d"
+                    }
+                    html += `
+                        <div class="list-group-item d-flex justify-content-between align-items-center mb-3 rounded" style="background-color: ${bg}; color:${color};">
+                        <p class="m-0">${moment(item.deadline).format('DD-MM-YYYY HH:mm')} ${item.title}</p>
+                        <div>
+                           <button type="button" class="btn btn-link text-secondary mx-1 p-0" data-bs-toggle="modal"
+                                data-bs-target="#editTodoModal-${item._id}">
+                                <i class="fa-solid fa-pencil"></i></a>
+                            </button>
+                            ${editTodoModal(item._id, item.title, item.deadline, item.complete)}
+                            <button type="button" class="btn btn-link text-secondary mx-1 p-0" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal-${item._id}">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                            ${deleteModal(item._id)}
+                        </div>
+                        </div>
+                    `
+                })
+                $('.todoList').append(html)
+                data.forEach((item, index) => {
+                    if (item.complete) {
+                        $(`#completeTodo-${item._id}`).prop('checked', true)
+                    }
+                })
+            }).fail(function (xhr, textStatus) {
+                alert("Request failed: " + textStatus);
+            })
+        }
+
+        function deleteModal(id) {
+            html = `
+                <div class="modal fade" id="deleteModal-${id}" tabindex="-1"
+                    aria-labelledby="deleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" style="color: black;" id="deleteModalLabel">Delete Conformation
+                                </h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p style="color: black;">are you sure?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary px-3"
+                                    data-bs-dismiss="modal">No</button>
+                                <button type="button" class="btn btn-primary px-3"
+                                    onclick="removeTodo('${id}')">Yes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+            return html
+        }
+
+        function removeTodo(id) {
+            $.ajax({
+                method: "DELETE",
+                url: `${API_URL}todos/${id}`
+            }).done(function(){
+                const modalElement = $(`#deleteModal-${id}`);
+                const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
+                modalInstance.hide();
+                currentPage=1
+                $('.todoList').html('')
+                loadTodo()
+            }).fail(function (xhr, textStatus) {
+                alert("Request failed: " + textStatus);
+            })
+        }
+
+        function editTodoModal(id, title, deadline, complete) {
+            html = `
+            <div class="modal fade" id="editTodoModal-${id}" tabindex="-1" aria-labelledby="editTodoModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="editTodoModalLabel-${id}" style="color: black;">Update Todo</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group row mb-2">
+                                <label for="editTodoTitle-${id}" class="col-sm-3 col-form-label" style="color: black;">Title</label>
+                                <div class="col-sm-9 mb-2">
+                                    <input type="text" class="form-control" id="editTodoTitle-${id}" name="title" value="${title}">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-2">
+                                <label for="editTodoDeadline-${id}" class="col-sm-3 col-form-label" style="color: black;">Deadline</label>
+                                <div class="col-sm-9 mb-2">
+                                    <input type="datetime-local" class="form-control" id="editTodoDeadline-${id}" name="deadline" value=${moment(deadline).format("YYYY-MM-DDTHH:mm")}>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-2">
+                                <label for="editTodoComplete-${id}" class="col-sm-3 col-form-label" style="color: black;">Complete</label>
+                                <div class="form-check col-sm-9 d-flex align-items-center">
+                                    <input class="form-check-input" type="checkbox" id="completeTodo-${id}" name="completeTodo"
+                                    style="margin-left: -10px; margin-right: 10px">
+                                    <label class="form-check-label ml-2" for="complete" style="color: black;">done</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary px-2" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary px-2" onclick="editTodo('${id}')">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `
+            return html
+        }
+
+        function editTodo(id) {
+            const titleValue = $(`#editTodoTitle-${id}`).val();
+            const deadlineValue = $(`#editTodoDeadline-${id}`).val();
+            const completeValue = $(`#completeTodo-${id}`).prop('checked');
+
+            $.ajax({
+                method: "PUT",
+                url: `${API_URL}todos/${id}`,
+                data:{
+                    title: titleValue,
+                    deadline: deadlineValue,
+                    complete: completeValue
+                }
+            }).done(function(){
+                const modalElement = $(`#editTodoModal-${id}`);
+                const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
+                modalInstance.hide();
+                currentPage=1
+                $('.todoList').html('')
+                loadTodo()
+            }).fail(function (xhr, textStatus) {
+                alert("Request failed: " + textStatus);
+            })
+        }
+
+        function sorting() {
+            $("#todoSort").on('click', function () {
+                event.preventDefault()
+                const icon = $(this).find('i');
+                if (icon.hasClass('fa-sort-up')) {
+                    icon.removeClass('fa-sort-up').addClass('fa-sort-down')
+                    sortMode = "asc"
+                } else if (icon.hasClass('fa-sort-down')) {
+                    icon.removeClass('fa-sort-down').addClass('fa-sort-up')
+                    sortMode = "desc"
+                } else {
+                    icon.removeClass('fa-sort').addClass('fa-sort-down')
+                    sortMode = "asc"
+                }
+
+                currentPage=1
+                $('.todoList').html('')
+                loadTodo(sortMode)
+            })
+        }
+
+    </script>
+
+    <%- include('./partials/footer') %>

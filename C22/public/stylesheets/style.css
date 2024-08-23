@@ -1,0 +1,14 @@
+.show-entries {
+    background-color: #e7e7e7; 
+    color: black;
+    cursor: default;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: .25rem;
+  }
+
+#entries{
+    text-align: center;
+    padding: 5px 10px;
+    border-color: #e7e7e7
+}
