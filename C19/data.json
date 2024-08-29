@@ -1,8 +1,8 @@
 [
   {
     "name": "Nawawi",
-    "height": 175,
-    "weight": 80,
+    "height": "177",
+    "weight": "80",
     "birthdate": "1990-07-21",
     "married": false
   },
@@ -39,6 +39,13 @@
     "height": "170",
     "weight": "70",
     "birthdate": "1995-01-20",
+    "married": true
+  },
+  {
+    "name": "Deawishal",
+    "height": "160",
+    "weight": "53",
+    "birthdate": "1998-06-20",
     "married": true
   }
 ]

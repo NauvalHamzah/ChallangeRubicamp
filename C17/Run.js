@@ -1,4 +1,4 @@
-import {Calculator, PI} from './Calculator.mjs';
+import Calculator, {PI} from './Calculator.mjs';
 
 const calc = new Calculator();
 calc.add(10).substract(5).result();

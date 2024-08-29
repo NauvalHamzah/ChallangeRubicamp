@@ -1,6 +1,6 @@
 export const PI = 22 / 7;
 
-export class Calculator {
+export default class Calculator {
     constructor() {
         this.x = 1;
     }
