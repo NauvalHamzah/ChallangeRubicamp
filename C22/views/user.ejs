@@ -227,7 +227,7 @@
       xhttp.send(`name=${nameValue}&phone=${phoneValue}`);
 
       const modalElement = document.getElementById(`addUserModal`);
-      const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
       modalInstance.hide();
       xhttp.onload = function () {
         selectedLimit = document.getElementById('entries').value
