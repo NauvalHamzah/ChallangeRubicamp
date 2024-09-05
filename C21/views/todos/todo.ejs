@@ -94,19 +94,24 @@
                 <tbody>
                     <% data.forEach((item, index)=> { %>
                         <tr>
-                            <td class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
+                            <td
+                                class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
                                 <%= index + 1 + offset %>
                             </td>
-                            <td class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
+                            <td
+                                class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
                                 <%= item.title %>
                             </td>
-                            <td class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
+                            <td
+                                class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
                                 <%= item.complete ? 'Done' : 'Not Yet' %>
                             </td>
-                            <td class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
+                            <td
+                                class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
                                 <%= moment(item.deadline).format('DD-MMM-YYYY HH:mm') %>
                             </td>
-                            <td class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
+                            <td
+                                class="<%= item.complete===false && item.deadline<=Date.now() ? 'bg-danger text-white' : '' %>">
                                 <a class="btn btn-success" href="/todo/edit/<%= item.id %>"><i
                                         class="fa-solid fa-pencil"></i></a>
                                 <form id="deleteForm-<%= item.id %>" action="/todo/delete/<%= item.id %>" method="GET"
@@ -159,23 +164,23 @@
                                     <span class="sr-only"></span>
                                 </a>
                             </li>
-                            <% } %>
-                                <% for(let i=1; i<=maxPage ; i++ ) { %>
-                                    <li class="page-item <%= page ==i ? 'active': '' %>"><a class="page-link"
-                                            href="<%= url.replace(`page=${page}`, `page=${i}`) %>">
-                                            <%= i %>
-                                        </a></li>
-                                    <% } %>
-                                        <% if(page<maxPage){ %>
-                                            <li class="page-item">
-                                                <a class="page-link"
-                                                    href="<%= url.replace(`page=${page}`, `page=${Number(page)+1}`) %>"
-                                                    aria-label="Next">
-                                                    <span aria-hidden="true">&raquo;</span>
-                                                    <span class="sr-only"></span>
-                                                </a>
-                                            </li>
-                                            <% } %>
+                        <% } %>
+                        <% for(let i=1; i<=maxPage ; i++ ) { %>
+                            <li class="page-item <%= page ==i ? 'active': '' %>">
+                                <a class="page-link" href="<%= url.replace(`page=${page}`, `page=${i}`) %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                        <% } %>
+                        <% if(page<maxPage){ %>
+                            <li class="page-item">
+                                <a class="page-link" href="<%= url.replace(`page=${page}`, `page=${Number(page)+1}`) %>"
+                                    aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span class="sr-only"></span>
+                                </a>
+                            </li>
+                        <% } %>
                     </ul>
                 </nav>
             </div>

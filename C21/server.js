@@ -2,10 +2,7 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const path = require('path')
-const { getTodo, getAddTodo, createTodo, removeTodo, getEdit, updateTodo } = require('./controllers/todoController')
-const { signInGet, registerGet, signIn, register, getAva, updateAva, logout } = require('./controllers/userController')
 var session = require('express-session');
-const { isLoggedIn } = require('./helpers/util')
 var flash = require('connect-flash');
 const fileUpload = require('express-fileupload');
 
@@ -26,31 +23,13 @@ app.use(session({
 app.use(flash())
 app.use(fileUpload());
 
-app.get('/', signInGet)
+var indexRouter = require('./routers/indexRouter');
+var userRouter = require('./routers/userRouter');
+var todoRouter = require('./routers/todoRouter');
 
-app.post('/login', signIn)
-
-app.get('/register', registerGet)
-
-app.post('/register', register)
-
-app.get('/todo/', isLoggedIn, getTodo)
-
-app.get('/todo/add', isLoggedIn, getAddTodo)
-
-app.post('/todo/add', isLoggedIn, createTodo)
-
-app.get('/todo/delete/:id', isLoggedIn, removeTodo)
-
-app.get('/todo/edit/:id', isLoggedIn, getEdit)
-
-app.post('/todo/edit/:id', isLoggedIn, updateTodo)
-
-app.get('/users/avatar', isLoggedIn, getAva)
-
-app.post('/users/avatar', isLoggedIn, updateAva)
-
-app.get('/logout', logout)
+app.use('/', indexRouter);
+app.use('/users', userRouter);
+app.use('/todo', todoRouter)
 
 app.listen(3000, function () {
     console.log('server berjalan di port 3000')

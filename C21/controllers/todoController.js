@@ -3,12 +3,14 @@ const moment = require('moment')
 
 function getTodo(req, res) {
     const page = req.query.page || 1
-    const url = req.url === '/todo' ? 'todo/?page=1&sortBy=id&sortMode=asc' : req.url
-    const keys = {}
-
-    // sorting
     const sortBy = req.query.sortBy || 'id'
     const sortMode = req.query.sortMode || 'asc'
+    let url = req.originalUrl;
+    if (!req.query.page || !req.query.sortBy || !req.query.sortMode) {
+        url = `todo?page=${page}&sortBy=${sortBy}&sortMode=${sortMode}`;
+    }    
+    
+    const keys = {}
 
     //searching
     keys.title = req.query.title
