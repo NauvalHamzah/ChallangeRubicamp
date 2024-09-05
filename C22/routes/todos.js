@@ -16,23 +16,23 @@ router.get('/', async function (req, res) {
       const limit = req.query.limit || 5
 
       const todoCount = await Todo.countDocuments({executor: executor})
-      if(todoCount>0){
-        const oldestTodo = await Todo.findOne({executor: executor}).sort({ deadline: 1 });
-        const latestTodo = await Todo.findOne({executor: executor}).sort({ deadline: -1 });
-        
-        startDate = startDate==''? oldestTodo.deadline : startDate
-        endDate = endDate==''? latestTodo.deadline : endDate
-        
-      }
 
       const cond = {
         executor: executor,
         title: new RegExp(title, 'i'),
-        deadline: { $gte: startDate, $lte: endDate}
       }
       if(complete!==''){
         cond.complete = complete
       }
+
+      if(startDate && endDate){
+        cond.deadline = { $gte: startDate, $lte: endDate}
+      } else if(!startDate && endDate){
+        cond.deadline = { $lte: endDate }
+      } else if(startDate && !endDate){
+        cond.deadline = { $gte: startDate }
+      }
+
       const todos = await Todo.find(cond)
       .sort({ "deadline": sortOrder })
       .skip((page-1)*limit)

@@ -67,20 +67,22 @@
     <script>
         const API_URL = 'http://localhost:3000/'
 
-        let currentPage = 1;
-        const limit = 5;
-        let totalPages = 1
-        let sortMode = 'asc'
+        let params={
+            currentPage: 1,
+            limit: 5,
+            sortMode: 'asc'
+        }
 
         $(document).ready(function () {
-            loadTodo();
+            loadTodo(params);
         })
 
         $(window).scroll(function () {
             if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                if (currentPage < totalPages) {
-                    currentPage += 1;
-                    loadTodo(sortMode, currentPage);
+                if (params.currentPage < totalPages) {
+                    params.currentPage += 1;
+                    loadTodo(params);
+                    
                 }
             }
         });
@@ -98,9 +100,9 @@
                     executor: userId
                 }
             }).done(function (textStatus, xhr) {
-                currentPage=1
+                params.currentPage=1
                 $('.todoList').html('')
-                loadTodo()
+                loadTodo(params)
             }).fail(function (xhr, textStatus) {
                 alert("Request failed: " + textStatus);
             })
@@ -108,9 +110,9 @@
 
         //search
         $('#searchButton').on('click', function () {
-            currentPage=1
+            params.currentPage=1
             $('.todoList').html('')
-            loadTodo()
+            loadTodo(params)
         });
 
         //reset
@@ -121,23 +123,24 @@
             $('#endDate').val('')
             $('#complete').val('')
             $('#todoSort').find('i').attr('class','fa-solid mr-4 fa-sort')
-            currentPage=1
+            params.currentPage=1
+            params.sortMode='asc'
             $('.todoList').html('')
-            loadTodo()
+            loadTodo(params)
         })
 
         sorting()
 
-        function loadTodo(sortMode = "asc", page=1) {
+        function loadTodo({...params}) {
             const queryParams = {
                 executor: "<%= userId %>",
-                sortMode: sortMode,
+                sortMode: params.sortMode,
                 title: $("#title").val(),
                 startDate: $("#startDate").val(),
                 endDate: $("#endDate").val(),
                 complete: $("#complete").val(),
-                page: page,
-                limit: limit
+                page: params.currentPage,
+                limit: params.limit
             };
 
             const queryString = $.param(queryParams)
@@ -227,9 +230,9 @@
                 const modalElement = $(`#deleteModal-${id}`);
                 const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
                 modalInstance.hide();
-                currentPage=1
+                params.currentPage=1
                 $('.todoList').html('')
-                loadTodo()
+                loadTodo(params)
             }).fail(function (xhr, textStatus) {
                 alert("Request failed: " + textStatus);
             })
@@ -294,9 +297,9 @@
                 const modalElement = $(`#editTodoModal-${id}`);
                 const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
                 modalInstance.hide();
-                currentPage=1
+                params.currentPage=1
                 $('.todoList').html('')
-                loadTodo()
+                loadTodo(params)
             }).fail(function (xhr, textStatus) {
                 alert("Request failed: " + textStatus);
             })
@@ -308,18 +311,18 @@
                 const icon = $(this).find('i');
                 if (icon.hasClass('fa-sort-up')) {
                     icon.removeClass('fa-sort-up').addClass('fa-sort-down')
-                    sortMode = "asc"
+                    params.sortMode = "asc"
                 } else if (icon.hasClass('fa-sort-down')) {
                     icon.removeClass('fa-sort-down').addClass('fa-sort-up')
-                    sortMode = "desc"
+                    params.sortMode = "desc"
                 } else {
                     icon.removeClass('fa-sort').addClass('fa-sort-down')
-                    sortMode = "asc"
+                    params.sortMode = "asc"
                 }
 
-                currentPage=1
+                params.currentPage=1
                 $('.todoList').html('')
-                loadTodo(sortMode)
+                loadTodo(params)
             })
         }
 
